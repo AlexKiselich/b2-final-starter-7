@@ -1,0 +1,8 @@
+<h2>All My Coupons</h2>
+
+<% @merchant.coupons.each do |coup| %>
+<section id="Coupon-<%= coup.id %>">
+  <h4><%= link_to "#{coup.name}", merchant_coupon_path(@merchant, coup) %></h4>
+  <p>Amount Off: <%= coup.amount %> <%= coup.discount %>
+<% end %>
+</section>
