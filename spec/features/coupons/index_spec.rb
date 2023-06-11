@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Coupons Index Page" do
+RSpec.describe "Merchant Coupons Index Page" do
   before(:each) do
     @sau = Merchant.create!(name: "Stones Are Us")
 
@@ -35,6 +35,7 @@ RSpec.describe "Coupons Index Page" do
       expect(page).to have_content("Amount Off: #{@ww20.amount} #{@ww20.discount}")
     end
   end
+  
   it "displays a link to create a new coupopn" do
     visit merchant_coupons_path(@sau)
     expect(page).to have_link("Create New Coupon")
