@@ -35,4 +35,12 @@ RSpec.describe "Coupons Index Page" do
       expect(page).to have_content("Amount Off: #{@ww20.amount} #{@ww20.discount}")
     end
   end
+  it "displays a link to create a new coupopn" do
+    visit merchant_coupons_path(@sau)
+    expect(page).to have_link("Create New Coupon")
+
+    click_link "Create New Coupon"
+
+    expect(current_path).to eq(new_merchant_coupon_path(@sau))
+  end
 end

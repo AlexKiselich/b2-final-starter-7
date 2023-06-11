@@ -2,6 +2,16 @@ class Coupon < ApplicationRecord
   belongs_to :merchant
   has_many :invoices
 
-  enum discount: [:dollar, :percent]
+  validates_presence_of  :name,
+                        :discount,
+                        :status,
+                        :merchant_id
+
+  validates :amount, numericality: { only_integer: true, greater_than: 0 }
+  validates :code, uniqueness: { case_sensitive: false }
+
+
+
+  enum discount: [:dollars, :percent]
   enum status: [:inactive, :active]
 end
