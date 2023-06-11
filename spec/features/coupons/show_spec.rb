@@ -1,26 +1,10 @@
-require 'rails_helper'
+require "rails_helper"
 
-RSpec.describe Coupon, type: :model do
-  describe "validations" do
-    merchant = Merchant.create!(name: "merchant name inserted", status: 0)
-    subject { Coupon.new(name: "Name inserted", amount: 0, discount: 0, merchant_id: merchant.id) }
-    it { should validate_presence_of :name }
-    it { should validate_presence_of :discount }
-    it { should validate_presence_of :status }
-    it { should validate_presence_of :merchant_id }
-    it { should validate_numericality_of(:amount) }
-    it { should validate_uniqueness_of(:code).case_insensitive}
-  end
-  describe "relationships" do
-    it { should belong_to :merchant }
-    it { should have_many :invoices }
-  end
-
-  describe "instance methods" do
-    before(:each) do
+RSpec.describe "Coupons Show Page" do
+  before(:each) do
     @sau = Merchant.create!(name: "Stones Are Us")
 
-    @sau10 = Coupon.create!(name: "$10 Off", code: "SAU10$", amount: 10, discount: 0, merchant: @sau)
+    @sau10 = Coupon.create!(name: "$10 Off", code: "SAU10$", amount: 10, discount: 0, status: 1, merchant: @sau)
     @sau20 = Coupon.create!(name: "20% Off", code: "SAU20%", amount: 20, discount: 1, merchant: @sau)
     @sau50 = Coupon.create!(name: "50% Off", code: "SAU50%", amount: 50, discount: 1, merchant: @sau)
 
@@ -48,12 +32,22 @@ RSpec.describe Coupon, type: :model do
     @transaction2 = Transaction.create!(credit_card_number: 230948, result: 1, invoice: @invoice_2)
     @transaction3 = Transaction.create!(credit_card_number: 234092, result: 1, invoice: @invoice_3)
     @transaction4 = Transaction.create!(credit_card_number: 230429, result: 1, invoice: @invoice_4)
-    @transaction5 = Transaction.create!(credit_card_number: 102938, result: 0, invoice: @invoice_5) 
-    end
-    describe "#count" do
-      it "Shows how many times a coupon had been used successfully" do
-        expect(@sau10.count).to eq(4)
-      end
-    end
+    @transaction5 = Transaction.create!(credit_card_number: 102938, result: 0, invoice: @invoice_5)
+  end
+
+  it "displays the name, code, status and percentage/dollar off value of coupon" do
+    visit merchant_coupon_path(@sau, @sau10)
+
+    expect(page).to have_content(@sau10.name)
+    expect(page).to have_content("Unique Code: #{@sau10.code}")
+    expect(page).to have_content("Coupon's Status: #{@sau10.status}")
+    expect(page).to have_content("Value: #{@sau10.amount} #{@sau10.discount} Off")
+    expect(page).to_not have_content(@sau20)
+  end
+
+  it "diplays the count of how many times the coupon has been used" do
+    visit merchant_coupon_path(@sau, @sau10)
+    save_and_open_page
+    expect(page).to have_content("Used 4 Times")
   end
 end
