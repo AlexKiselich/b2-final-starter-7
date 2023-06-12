@@ -63,4 +63,18 @@ RSpec.describe "Coupons Show Page" do
     expect(current_path).to eq(merchant_coupon_path(@sau, @sau10))
     expect(page).to have_content("Status: inactive")
   end
+
+  it "displays a button to activate a coupon" do
+    visit merchant_coupon_path(@sau, @sau20)
+
+    within "#coupon-#{@sau20.id}" do
+      expect(@sau20.status).to eq("inactive")
+      expect(page).to have_content("Status: inactive")
+
+      click_button "Activate Coupon"
+    end
+
+    expect(current_path).to eq(merchant_coupon_path(@sau, @sau20))
+    expect(page).to have_content("Status: active")
+  end
 end
