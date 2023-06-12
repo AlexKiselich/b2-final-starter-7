@@ -121,7 +121,6 @@ RSpec.describe "merchant dashboard" do
   end
 
   it "shows a link to view all of my coupons which links the the coupon index page" do
-
     expect(page).to have_link("Coupons")
 
     click_link "Coupons"
