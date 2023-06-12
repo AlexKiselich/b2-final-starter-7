@@ -47,7 +47,20 @@ RSpec.describe "Coupons Show Page" do
 
   it "diplays the count of how many times the coupon has been used" do
     visit merchant_coupon_path(@sau, @sau10)
-    save_and_open_page
     expect(page).to have_content("Used 4 Times")
+  end
+
+  it "displays a button to deactivate a coupon" do
+    visit merchant_coupon_path(@sau, @sau10)
+
+    within "#coupon-#{@sau10.id}" do
+      expect(@sau10.status).to eq("active")
+      expect(page).to have_content("Status: active")
+
+      click_button "Deactivate Coupon"
+    end
+
+    expect(current_path).to eq(merchant_coupon_path(@sau, @sau10))
+    expect(page).to have_content("Status: inactive")
   end
 end
