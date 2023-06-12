@@ -6,7 +6,7 @@ RSpec.describe "Merchant Coupons Index Page" do
 
     @sau10 = Coupon.create!(name: "$10 Off", code: "SAU10$", amount: 10, discount: 0, merchant: @sau)
     @sau20 = Coupon.create!(name: "20% Off", code: "SAU20%", amount: 20, discount: 1, merchant: @sau)
-    @sau50 = Coupon.create!(name: "50% Off", code: "SAU50%", amount: 50, discount: 1, merchant: @sau)
+    @sau50 = Coupon.create!(name: "50% Off", code: "SAU50%", amount: 50, discount: 1, status: 1, merchant: @sau)
 
     @ww = Merchant.create!(name: "Wood Works")
     @ww20 = Coupon.create!(name: "20% Off", code: "WW20%", amount: 20, discount: 1, merchant: @ww)
@@ -35,7 +35,7 @@ RSpec.describe "Merchant Coupons Index Page" do
       expect(page).to have_content("Amount Off: #{@ww20.amount} #{@ww20.discount}")
     end
   end
-  
+
   it "displays a link to create a new coupopn" do
     visit merchant_coupons_path(@sau)
     expect(page).to have_link("Create New Coupon")
@@ -43,5 +43,24 @@ RSpec.describe "Merchant Coupons Index Page" do
     click_link "Create New Coupon"
 
     expect(current_path).to eq(new_merchant_coupon_path(@sau))
+  end
+
+  it "displays the coupons separated between active and inactive coupons" do
+    visit merchant_coupons_path(@sau)
+
+    expect(page).to have_content("Active Coupons:")
+
+    within "#active" do
+      expect(page).to have_content(@sau50.name)
+      expect(page).to_not have_content(@sau10.name)
+    end
+
+    expect(page).to have_content("Inactive Coupons:")
+
+    within "#inactive" do
+      expect(page).to have_content(@sau10.name)
+      expect(page).to have_content(@sau20.name)
+      expect(page).to_not have_content(@sau50.name)
+    end
   end
 end
