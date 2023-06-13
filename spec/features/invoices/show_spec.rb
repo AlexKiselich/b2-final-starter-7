@@ -5,6 +5,9 @@ RSpec.describe "invoices show" do
     @merchant1 = Merchant.create!(name: "Hair Care")
     @merchant2 = Merchant.create!(name: "Jewelry")
 
+    @coupon_1 = Coupon.create!(name: "10% Off", code: "10pO", amount: 10, discount: 1, status: 1, merchant: @merchant1)
+
+
     @item_1 = Item.create!(name: "Shampoo", description: "This washes your hair", unit_price: 10, merchant_id: @merchant1.id, status: 1)
     @item_2 = Item.create!(name: "Conditioner", description: "This makes your hair shiny", unit_price: 8, merchant_id: @merchant1.id)
     @item_3 = Item.create!(name: "Brush", description: "This takes out tangles", unit_price: 5, merchant_id: @merchant1.id)
@@ -22,6 +25,10 @@ RSpec.describe "invoices show" do
     @customer_5 = Customer.create!(first_name: "Sylvester", last_name: "Nader")
     @customer_6 = Customer.create!(first_name: "Herber", last_name: "Kuhn")
 
+    @coupon_1 = Coupon.create!(name: "10% Off", code: "coup10p", amount: 10, discount: 1, status: 1, merchant: @merchant1)
+    @coupon_2 = Coupon.create!(name: "$10 Off", code: "coup10d", amount: 10, status: 1, discount: 0, merchant: @merchant1)
+
+
     @invoice_1 = Invoice.create!(customer_id: @customer_1.id, status: 2, created_at: "2012-03-27 14:54:09")
     @invoice_2 = Invoice.create!(customer_id: @customer_1.id, status: 2, created_at: "2012-03-28 14:54:09")
     @invoice_3 = Invoice.create!(customer_id: @customer_2.id, status: 2)
@@ -29,8 +36,9 @@ RSpec.describe "invoices show" do
     @invoice_5 = Invoice.create!(customer_id: @customer_4.id, status: 2)
     @invoice_6 = Invoice.create!(customer_id: @customer_5.id, status: 2)
     @invoice_7 = Invoice.create!(customer_id: @customer_6.id, status: 2)
-
     @invoice_8 = Invoice.create!(customer_id: @customer_6.id, status: 1)
+
+    @invoice_9 = Invoice.create!(customer: @customer_1, status: 2, coupon: @coupon_1)
 
     @ii_1 = InvoiceItem.create!(invoice_id: @invoice_1.id, item_id: @item_1.id, quantity: 9, unit_price: 10, status: 2)
     @ii_2 = InvoiceItem.create!(invoice_id: @invoice_2.id, item_id: @item_1.id, quantity: 1, unit_price: 10, status: 2)
@@ -43,6 +51,9 @@ RSpec.describe "invoices show" do
     @ii_10 = InvoiceItem.create!(invoice_id: @invoice_8.id, item_id: @item_5.id, quantity: 1, unit_price: 1, status: 1)
     @ii_11 = InvoiceItem.create!(invoice_id: @invoice_1.id, item_id: @item_8.id, quantity: 12, unit_price: 6, status: 1)
 
+    @ii_12 = InvoiceItem.create!(invoice: @invoice_9, item: @item_1, quantity: 5, unit_price: 10, status: 2)
+    @ii_13 = InvoiceItem.create!(invoice: @invoice_9, item: @item_1, quantity: 5, unit_price: 10, status: 2)
+
     @transaction1 = Transaction.create!(credit_card_number: 203942, result: 1, invoice_id: @invoice_1.id)
     @transaction2 = Transaction.create!(credit_card_number: 230948, result: 1, invoice_id: @invoice_2.id)
     @transaction3 = Transaction.create!(credit_card_number: 234092, result: 1, invoice_id: @invoice_3.id)
@@ -51,6 +62,8 @@ RSpec.describe "invoices show" do
     @transaction6 = Transaction.create!(credit_card_number: 879799, result: 0, invoice_id: @invoice_6.id)
     @transaction7 = Transaction.create!(credit_card_number: 203942, result: 1, invoice_id: @invoice_7.id)
     @transaction8 = Transaction.create!(credit_card_number: 203942, result: 1, invoice_id: @invoice_8.id)
+    @transaction9 = Transaction.create!(credit_card_number: 203322, result: 1, invoice: @invoice_9)
+
   end
 
   it "shows the invoice information" do
@@ -100,4 +113,27 @@ RSpec.describe "invoices show" do
     end
   end
 
+  it "displays a subtotal for my merchant from this invoice that doesn't include coupon discounts" do
+    visit merchant_invoice_path(@merchant1, @invoice_1)
+
+    expect(page).to have_content("Subtotal: $#{@invoice_1.total_revenue}")
+  end
+
+  it "displays a grand total revenue after the discount was applied" do
+    visit merchant_invoice_path(@merchant1, @invoice_9)
+
+    expect(page).to have_content("Subtotal: $#{@invoice_9.total_revenue}")
+    expect(page).to have_content("Grand Total: $#{@invoice_9.grand_total}")
+  end
+
+  it "It displays the name and code of the coupon used as a link to that coupon's show page" do
+    visit merchant_invoice_path(@merchant1, @invoice_9)
+    save_and_open_page
+    expect(page).to have_content("Subtotal: $#{@invoice_9.total_revenue}")
+    expect(page).to have_content("Grand Total: $#{@invoice_9.grand_total}")
+    expect(page).to have_link("Name: #{@coupon_1.name} / Code: #{@coupon_1.code}")
+
+    click_link "Name: #{@coupon_1.name} / Code: #{@coupon_1.code}"
+    expect(current_path).to eq(merchant_coupon_path(@merchant1, @coupon_1))
+  end
 end
