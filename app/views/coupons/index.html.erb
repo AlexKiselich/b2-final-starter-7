@@ -22,6 +22,13 @@
   <% end %>
 </div>
 
+<div id="holidays">
+  <h3>Upcoming Holidays</h3>
+  <% @holidays.each do |holiday| %>
+    <p><%= holiday.name %>: <%= holiday.date %></p>
+  <% end %>
+</div>
+
 
 <h3><%= link_to "Create New Coupon", new_merchant_coupon_path(@merchant) %></h3>
 
