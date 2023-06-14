@@ -62,4 +62,12 @@ class Merchant < ApplicationRecord
   def disabled_items
     items.where(status: 0)
   end
+
+  def count_coupon_active
+    coupons.where("status = 1").count
+  end
+
+  def active_threshold?
+    count_coupon_active >= 5
+  end
 end
