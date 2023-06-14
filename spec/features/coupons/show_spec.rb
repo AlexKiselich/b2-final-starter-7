@@ -77,4 +77,25 @@ RSpec.describe "Coupons Show Page" do
     expect(current_path).to eq(merchant_coupon_path(@sau, @sau20))
     expect(page).to have_content("Status: active")
   end
+
+  it "displays error if merchant tries to activate more than 5 coupons" do
+    @dau = Merchant.create!(name:"Doors Are Us")
+    @coupon_1 = @dau.coupons.create!(name: "10% Off", code: "10-p-o", amount: 10, discount: 1, status: 1)
+    @coupon_2 = @dau.coupons.create!(name: "20% Off", code: "20-p-o", amount: 20, discount: 1, status: 1)
+    @coupon_3 = @dau.coupons.create!(name: "$10 Off", code: "10-d-o", amount: 10, discount: 0, status: 1)
+    @coupon_4 = @dau.coupons.create!(name: "$20 Off", code: "20-d-o", amount: 20, discount: 0, status: 1)
+    @coupon_5 = @dau.coupons.create!(name: "$30 Off", code: "30-d-o", amount: 30, discount: 0, status: 1)
+    @coupon_6 = @dau.coupons.create!(name: "$25 Off", code: "25-d-o", amount: 20, discount: 0)
+
+
+    visit merchant_coupon_path(@dau, @coupon_6)
+    within "#coupon-#{@coupon_6.id}" do
+      expect(@coupon_6.status).to eq("inactive")
+      expect(@dau.coupons.active.count).to eq(5)
+      expect(page).to have_button("Activate Coupon")
+      click_button "Activate Coupon"
+    end
+    expect(current_path).to eq(merchant_coupons_path(@dau))
+    expect(page).to have_content("Error: You cannot have more than 5 active coupons, please deactivate one first")
+  end
 end
