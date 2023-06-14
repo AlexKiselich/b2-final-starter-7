@@ -93,6 +93,13 @@ describe Merchant do
   describe "instance methods" do
     before :each do
       @merchant1 = Merchant.create!(name: 'Hair Care')
+      @coupon_1 = @merchant1.coupons.create!(name: "10% Off", code: "10-p-o", amount: 10, discount: 1, status: 1)
+      @coupon_2 = @merchant1.coupons.create!(name: "20% Off", code: "20-p-o", amount: 20, discount: 1, status: 1)
+      @coupon_3 = @merchant1.coupons.create!(name: "$10 Off", code: "10-d-o", amount: 10, discount: 0, status: 1)
+      @coupon_4 = @merchant1.coupons.create!(name: "$20 Off", code: "20-d-o", amount: 20, discount: 0, status: 1)
+      @coupon_5 = @merchant1.coupons.create!(name: "$30 Off", code: "30-d-o", amount: 30, discount: 0, status: 1)
+
+
       @merchant2 = Merchant.create!(name: 'Jewelry')
 
       @item_1 = Item.create!(name: "Shampoo", description: "This washes your hair", unit_price: 10, merchant_id: @merchant1.id, status: 1)
@@ -168,6 +175,16 @@ describe Merchant do
     it "disabled_items" do
       expect(@merchant1.disabled_items).to eq([@item_2, @item_3, @item_4, @item_7, @item_8])
       expect(@merchant2.disabled_items).to eq([@item_5, @item_6])
+    end
+
+    it "#count_coupon_active" do
+      expect(@merchant1.count_coupon_active).to eq(5)
+      expect(@merchant2.count_coupon_active).to eq(0)
+    end
+
+    it "#active_threshold" do
+      expect(@merchant1.active_threshold?).to eq(true)
+      expect(@merchant2.active_threshold?).to eq(false)
     end
   end
 end
