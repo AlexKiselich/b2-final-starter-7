@@ -49,7 +49,7 @@ RSpec.describe Invoice, type: :model do
       @invoice_3 = Invoice.create!(customer: @customer_1, status: 2, created_at: "2012-03-27 14:54:09", coupon: @coupon_2 )
       @ii_5 = InvoiceItem.create!(invoice: @invoice_3, item: @item_1, quantity: 1, unit_price: 10, status: 2)
       @ii_6 = InvoiceItem.create!(invoice: @invoice_3, item: @item_8, quantity: 1, unit_price: 10, status: 2)
-      @transaction2 = Transaction.create!(credit_card_number: 234232, result: 1, invoice: @invoice_2)
+      @transaction2 = Transaction.create!(credit_card_number: 234232, result: 1, invoice: @invoice_3)
 
 
       expect(@invoice_1.grand_total).to eq(94.5)

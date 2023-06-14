@@ -66,7 +66,7 @@ RSpec.describe "Merchant Coupons Index Page" do
 
   it "displays a section for next 3 upcoming US holidays" do
     visit merchant_coupons_path(@sau)
-    save_and_open_page
+    
     expect(page).to have_content("Upcoming Holidays")
     within "#holidays" do
       expect(page).to have_content("Juneteenth: 2023-06-19")
